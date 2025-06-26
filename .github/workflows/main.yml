@@ -1,0 +1,118 @@
+name: Build VYLE AUTO/MOTOR App
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build for Windows
+      if: matrix.os == 'windows-latest'
+      run: npm run build-win
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build for Linux (Steam Deck)
+      if: matrix.os == 'ubuntu-latest'
+      run: npm run build-linux
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build for macOS
+      if: matrix.os == 'macos-latest'
+      run: npm run build-mac
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Windows Build
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: vyle-automotor-windows
+        path: |
+          dist/*.exe
+          dist/*.zip
+          
+    - name: Upload Linux Build (Steam Deck)
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: vyle-automotor-linux-steamdeck
+        path: |
+          dist/*.AppImage
+          dist/*.deb
+          dist/*.rpm
+          
+    - name: Upload macOS Build
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: vyle-automotor-macos
+        path: |
+          dist/*.dmg
+          dist/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          vyle-automotor-windows/*
+          vyle-automotor-linux-steamdeck/*
+          vyle-automotor-macos/*
+        body: |
+          ## VYLE - AUTO/MOTOR Interactive Album
+          
+          ### 🎮 Platform Downloads:
+          - **Windows**: `.exe` installer for PC
+          - **Steam Deck/Linux**: `.AppImage` (portable) or `.deb` (install)
+          - **macOS**: `.dmg` installer
+          
+          ### 🚀 Installation:
+          1. Download the file for your platform
+          2. Install/run the application  
+          3. Add to Steam as "Non-Steam Game" for full integration
+          
+          ### 🎯 Steam Deck Users:
+          - Download the `.AppImage` file
+          - Make it executable: `chmod +x *.AppImage`
+          - Add to Steam in Desktop Mode
+          - Perfect gamepad and touch controls!
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
