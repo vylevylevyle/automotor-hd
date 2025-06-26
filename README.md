@@ -1,4 +1,4 @@
-# VYLE - AUTO/MOTOR Electron App Setup
+# VYLE - AUTO/MOTOR HD
 
 ## 🎮 Platform Compatibility
 
