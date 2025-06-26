@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO/MOTOR - VYLE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+        
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 3s ease-in-out 2s forwards;
+        }
+        
+        .intro-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 8rem;
+            font-weight: 900;
+            letter-spacing: 2rem;
+            animation: glitch 2s ease-in-out;
+        }
+        
+        @keyframes glitch {
+            0%, 100% { 
+                text-shadow: 0 0 0 #fff;
+                transform: translateX(0);
+            }
+            20% { 
+                text-shadow: -2px 0 #ff0040, 2px 2px #00ffff;
+                transform: translateX(-2px);
+            }
+            40% { 
+                text-shadow: 2px 0 #ff0040, -2px -2px #00ffff;
+                transform: translateX(2px);
+            }
+            60% { 
+                text-shadow: 0 0 0 #fff;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        
+        .main-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #000 0%, #111 50%, #000 100%);
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out 5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .background-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="1" seed="1"/><feColorMatrix values="0 0 0 0 0.05 0 0 0 0 0.05 0 0 0 0 0.05 0 0 0 0.02 0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .album-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 1rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .artist-name {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 0.3rem;
+            opacity: 0.7;
+        }
+        
+        .menu-container {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .track-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .track-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .track-item:hover::before {
+            left: 100%;
+        }
+        
+        .track-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .track-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.5rem;
+        }
+        
+        .track-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
+        }
+        
+        .track-features {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+        
+        .webview-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .webview-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .webview-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 1001;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .back-button {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            margin-right: 1rem;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .webview-title {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .webview-frame {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+            background: #fff;
+        }
+        
+        .menu-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .menu-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .menu-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Keyboard navigation */
+        .track-item:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-cursor"></div>
+    
+    <div class="intro-screen">
+        <div class="intro-logo">VYLE</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="background-video"></div>
+        <div class="noise-overlay"></div>
+        
+        <div class="header">
+            <div class="album-title">AUTO/MOTOR</div>
+            <div class="artist-name">VYLE</div>
+        </div>
+        
+        <div class="menu-container">
+            <div class="menu-grid" id="trackGrid">
+                <!-- Tracks will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="webview-container" id="webviewContainer">
+        <div class="webview-header">
+            <button class="back-button" onclick="closeWebview()">← BACK</button>
+            <div class="webview-title" id="webviewTitle"></div>
+        </div>
+        <iframe class="webview-frame" id="webviewFrame"></iframe>
+    </div>
+    
+    <script>
+        const tracks = [
+            { title: "9:32:04 AM Feat. Michael Tousana", url: "https://vylevylevyle.com/automotor_hd/932am" },
+            { title: "9:32:04 AM pt.2 Feat. Michael Tousana", url: "https://vylevylevyle.com/automotor_hd/932ampt2" },
+            { title: "UNDER_RAGING", url: "https://vylevylevyle.com/automotor_hd/under-raging" },
+            { title: "The Anatomy of a Swiveling Bulletproof Window (Trust) feat. Fat Tony", url: "https://vylevylevyle.com/automotor_hd/trust" },
+            { title: "Try To Catch The Mileage (Speedometer)", url: "https://vylevylevyle.com/automotor_hd/mileage" },
+            { title: "ZAMIMBIA", url: "https://vylevylevyle.com/automotor_hd/zamimbia" },
+            { title: "SILENT CODEZ Feat. Alex Chapman + The GTW", url: "https://vylevylevyle.com/automotor_hd/silentcodez" },
+            { title: "APERTURE_001 (Silent Codez Pt.2)", url: "https://vylevylevyle.com/automotor_hd/aperture_001" },
+            { title: "KENWOOD LIQUORZ", url: "https://vylevylevyle.com/automotor_hd/kenwoodliquorz" },
+            { title: "THE WALK BACK (Sandifer Imaging) feat. Xhosa", url: "https://vylevylevyle.com/automotor_hd/thewalkback" },
+            { title: "NO ONE WROTE THIS OUT FOR US feat. Jinx The Natural", url: "https://vylevylevyle.com/automotor_hd/noonewrotethisoutforus" },
+            { title: "GEARSHIFT (Model S) Feat. Haleek Maul (Prod. by Brodinski)", url: "https://vylevylevyle.com/automotor_hd/gearshift" },
+            { title: "Front Row Stockist Feat. Teki Latex", url: "https://vylevylevyle.com/automotor_hd/frontrowstockist" },
+            { title: "INTRAMURAL", url: "https://vylevylevyle.com/automotor_hd/intramural" },
+            { title: "CLIQUEBAIT (Prod. by P. Morris)", url: "https://vylevylevyle.com/automotor_hd/cliquebait" },
+            { title: "MECHLESS RANMA feat. M. Sayyid", url: "https://vylevylevyle.com/automotor_hd/mechlessranma" },
+            { title: "HAND CAR WASH", url: "https://vylevylevyle.com/automotor_hd/handcarwash" },
+            { title: "5300 FROM LAKE TO UNIVERSITY AVE (Prod. by Meaty Ogre)", url: "https://vylevylevyle.com/automotor_hd/5300" },
+            { title: "NONTEPID feat. Beans", url: "https://vylevylevyle.com/automotor_hd/nontepid" },
+            { title: "NEARFUTURE", url: "https://vylevylevyle.com/automotor_hd/nearfuture" },
+            { title: "BABYHAIRED", url: "https://vylevylevyle.com/automotor_hd/babyhaired" },
+            { title: "PALETTE Feat. Dos Global + Contessa Stuto", url: "https://vylevylevyle.com/automotor_hd/palette" },
+            { title: "NIGO'S LAW feat. G.O.D. Jewels + Cities Aviv", url: "https://vylevylevyle.com/automotor_hd/nigoslaw" },
+            { title: "Countryside Interlude", url: "https://vylevylevyle.com/automotor_hd/countrysideinterlude" },
+            { title: "A Ü T O/M Ö T O R", url: "https://vylevylevyle.com/automotor_hd/titletrack" },
+            { title: "BRUTALISMÉ (FILE OPENED)", url: "https://vylevylevyle.com/automotor_hd/brutalisme" },
+            { title: "Altgeld Gardens/Babbage's (Prod. by Brodinski)", url: "https://vylevylevyle.com/automotor_hd/altgeld" },
+            { title: "Mobile Suit Reticle View (SANKA.) feat. Pixelated Overdub", url: "https://vylevylevyle.com/automotor_hd/msrv" },
+            { title: "Bacci's Storefront feat. THE DUTCHMASTER", url: "https://vylevylevyle.com/automotor_hd/baccis" },
+            { title: "Daley Center Picasso feat. Rich Jones", url: "https://vylevylevyle.com/automotor_hd/center" },
+            { title: "Miu Miu Glasses (WHPK in Europe)", url: "https://vylevylevyle.com/automotor_hd/miumiu" }
+        ];
+        
+        // Custom cursor
+        const cursor = document.querySelector('.custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        
+        // Populate track grid
+        const trackGrid = document.getElementById('trackGrid');
+        tracks.forEach((track, index) => {
+            const trackElement = document.createElement('div');
+            trackElement.classList.add('track-item');
+            trackElement.tabIndex = 0;
+            
+            // Extract features from title
+            const featMatch = track.title.match(/(feat\.|Feat\.|featuring|ft\.)\s*(.+?)(\s*\(|$)/i);
+            const features = featMatch ? featMatch[2] : '';
+            const mainTitle = track.title.replace(/(feat\.|Feat\.|featuring|ft\.)\s*.+?(\s*\(|$)/i, '$2');
+            
+            trackElement.innerHTML = `
+                <div class="track-number">${String(index + 1).padStart(2, '0')}</div>
+                <div class="track-title">${mainTitle}</div>
+                ${features ? `<div class="track-features">feat. ${features}</div>` : ''}
+            `;
+            
+            trackElement.addEventListener('click', () => openWebview(track));
+            trackElement.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openWebview(track);
+                }
+            });
+            
+            trackGrid.appendChild(trackElement);
+        });
+        
+        // Webview functions
+        function openWebview(track) {
+            const webviewContainer = document.getElementById('webviewContainer');
+            const webviewFrame = document.getElementById('webviewFrame');
+            const webviewTitle = document.getElementById('webviewTitle');
+            
+            webviewTitle.textContent = track.title;
+            webviewFrame.src = track.url;
+            webviewContainer.classList.add('active');
+        }
+        
+        function closeWebview() {
+            const webviewContainer = document.getElementById('webviewContainer');
+            const webviewFrame = document.getElementById('webviewFrame');
+            
+            webviewContainer.classList.remove('active');
+            webviewFrame.src = '';
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeWebview();
+            }
+        });
+        
+        // Add subtle background animation
+        function createFloatingElements() {
+            const container = document.querySelector('.main-container');
+            for (let i = 0; i < 20; i++) {
+                const element = document.createElement('div');
+                element.style.cssText = `
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    background: rgba(255, 255, 255, 0.1);
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                    animation: float ${5 + Math.random() * 10}s linear infinite;
+                    z-index: 2;
+                `;
+                container.appendChild(element);
+            }
+        }
+        
+        // Add floating animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize floating elements after intro
+        setTimeout(createFloatingElements, 5000);
+    </script>
+</body>
+</html>
