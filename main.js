@@ -6,20 +6,20 @@ function createWindow() {
 
   switch (process.platform) {
     case 'win32':
-      iconFilename = 'am_hd_icon-windows.ico';
+      iconFilename = 'icon.ico';
       break;
     case 'darwin':
-      iconFilename = 'am_hd_icon-mac.icns';
+      iconFilename = 'icon.icns';
       break;
     default:
-      iconFilename = 'am_hd_icon-default.png';
+      iconFilename = 'icon.png';
       break;
   }
 
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    icon: path.join(__dirname, 'assets', 'icons', iconFilename),
+    icon: path.join(__dirname, 'assets', iconFilename),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
