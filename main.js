@@ -6,13 +6,13 @@ function createWindow() {
 
   switch (process.platform) {
     case 'win32':
-      iconFilename = 'automotor_hd_icon_pc.ico';
+      iconFilename = 'am_hd_icon-windows.ico';
       break;
     case 'darwin':
-      iconFilename = 'automotor_hd_icon_mac.icns';
+      iconFilename = 'am_hd_icon-mac.icns';
       break;
     default:
-      iconFilename = 'automotor_hd_icon_linux.png';
+      iconFilename = 'am_hd_icon-default.png';
       break;
   }
 
